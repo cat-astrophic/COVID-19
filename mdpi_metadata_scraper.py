@@ -55,10 +55,6 @@ for link in links:
 
                 bib_years.append(dat)
                 
-            if str(dat)[0:23] == '<div class="art-authors':
-                
-                paper_authors.append(dat)
-
         for aff in paper_affiliations:
 
             c1 = str(aff).find('>')
