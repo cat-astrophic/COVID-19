@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup as bs
 
 # Get links from previous output file
 
-file = open('C:/Users/User/Documents/Data/COVID-19/mdpi_links.txt', 'r')
+file = open('C:/Users/User/Documents/Data/COVID-19/ml.txt', 'r')
 links = file.readlines()
 file.close()
 
@@ -54,7 +54,7 @@ for link in links:
             if str(dat)[0:23] == '<div class="pubhistory"':
 
                 bib_years.append(dat)
-                
+
         for aff in paper_affiliations:
 
             c1 = str(aff).find('>')
@@ -77,21 +77,21 @@ for link in links:
 
             for bib in bib_years:
 
-                j1 = str(bib).find('Submitted: ')
-                j2 = str(bib)[j1+11:].find('<')
-                submitted.append(str(bib)[j1+11:j1+j2])
+                j1 = str(bib).find('Received: ')
+                j2 = str(bib)[j1+10:].find('/')
+                submitted.append(str(bib)[j1+10:j1+j2+9])
                 
                 j1 = str(bib).find('Revised: ')
-                j2 = str(bib)[j1+11:].find('<')
-                revised.append(str(bib)[j1+9:j1+j2])
+                j2 = str(bib)[j1+9:].find('/')
+                revised.append(str(bib)[j1+9:j1+j2+8])
                 
                 j1 = str(bib).find('Accepted: ')
-                j2 = str(bib)[j1+11:].find('<')
-                accepted.append(str(bib)[j1+10:j1+j2])
+                j2 = str(bib)[j1+10:].find('/')
+                accepted.append(str(bib)[j1+10:j1+j2+9])
                 
                 j1 = str(bib).find('Published: ')
                 j2 = str(bib)[j1+11:].find('<')
-                published.append(str(bib)[j1+11:j1+j2])        
+                published.append(str(bib)[j1+11:j1+j2+10])
         
     except:
         
