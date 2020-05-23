@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup as bs
 
 # Get links from previous output file
 
-file = open('C:/Users/User/Documents/Data/COVID-19/ml.txt', 'r')
+file = open('C:/Users/User/Documents/Data/COVID-19/mdpi_links.txt', 'r')
 links = file.readlines()
 file.close()
 
