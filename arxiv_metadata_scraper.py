@@ -2,7 +2,7 @@
 
 """ NOTE TO USERS:
     
-    Specify the directory for storing data - lines 154, 160, 166, 172, 179 """
+    Specify the directory for storing data - lines 149, 155, 161, 167, 174 """
 
 # Importing required modules
 
@@ -146,32 +146,32 @@ for ym in yymm:
 
 # Writing results as .txt files
 
-with open('C:/Users/M535040/Documents/Data/COVID-19/category_data.txt', 'w') as file:
+with open('C:/Users/User/Documents/Data/COVID-19/category_data.txt', 'w') as file:
     
     for entry in category_data:
     
         file.write('%s\n' % entry)
 
-with open('C:/Users/M535040/Documents/Data/COVID-19/submission_dates.txt', 'w') as file:
+with open('C:/Users/User/Documents/Data/COVID-19/submission_dates.txt', 'w') as file:
     
     for entry in submission_dates:
     
         file.write('%s\n' % entry)
 
-with open('C:/Users/M535040/Documents/Data/COVID-19/updated_dates.txt', 'w') as file:
+with open('C:/Users/User/Documents/Data/COVID-19/updated_dates.txt', 'w') as file:
     
     for entry in updated_dates:
     
         file.write('%s\n' % entry)
 
-with open('C:/Users/M535040/Documents/Data/COVID-19/affiliation_data.txt', 'w', encoding = 'utf-8') as file:
+with open('C:/Users/User/Documents/Data/COVID-19/affiliation_data.txt', 'w', encoding = 'utf-8') as file:
     
     for row in range(len(affiliation_data)):
         
         entry = str(affiliation_data[row])
         file.write('%s\n' % entry)
 
-with open('C:/Users/M535040/Documents/Data/COVID-19/authorship_data.txt', 'w', encoding = 'utf-8') as file:
+with open('C:/Users/User/Documents/Data/COVID-19/authorship_data.txt', 'w', encoding = 'utf-8') as file:
     
     for row in range(len(authorship_data)):
         
