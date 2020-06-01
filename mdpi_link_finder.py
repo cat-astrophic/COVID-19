@@ -10,24 +10,24 @@ from bs4 import BeautifulSoup as bs
 # Do not increase the results per page or you will not get data!
 
 start = 'https://www.mdpi.com/search?sort=pubdate&page_no='
-end = '&page_count=15&year_from=2019&year_to=2020&view=default'
+end = '&page_count=15&year_from=1996&year_to=2020&view=default'
 
 # Scraping the metadata from all submissions
 
 links = []
 
-for i in range(11127):
+for i in range(24378):
    
     # Declaring which results page from the empty search query we want to scrape
    
     url = start + str(i+1) + end
-    print('Retrieving data from query page ' + str(i+1) + ' of 11127.')
+    print('Retrieving data from query page ' + str(i+1) + ' of 24378.')
    
     # Getting the raw data
     
-    if i == 11127:
+    if i == 24378:
         
-        length = len(links) + 10
+        length = len(links) + 8
         
     else:
         
@@ -62,7 +62,7 @@ for i in range(11127):
            
             continue
        
-with open('C:/Users/User/Documents/Data/COVID-19/mdpi_links.txt', 'w') as file:
+with open('C:/Users/themadcatter/Documents/Data/COVID-19/mdpi_links.txt', 'w') as file:
    
     for link in links:
        
