@@ -25,10 +25,9 @@ end = '&max_results=1000&sortBy=submittedDate&sortOrder=descending'
 
 # List of year month combinations for id query
 
-yymm = ['1801', '1802', '1803', '1804', '1805', '1806', '1807', '1808',
-        '1809', '1810', '1811', '1812', '1901', '1902', '1903', '1904',
-        '1905', '1906', '1907', '1908', '1909', '1910', '1911', '1912',
-        '2001', '2002', '2003', '2004', '2005', '2006']
+yy = [str(i) for i in range(10,21)]
+mm = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+yymm = [y+m for y in yy for m in mm]
 
 # Running the outer loop
 
