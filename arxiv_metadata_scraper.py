@@ -2,7 +2,7 @@
 
 """ NOTE TO USERS:
     
-    Specify the directory for storing data - lines 149, 155, 161, 167, 174 """
+    Specify the directory for storing data - lines 151, 157, 163, 169, 176 """
 
 # Importing required modules
 
@@ -25,8 +25,10 @@ end = '&max_results=1000&sortBy=submittedDate&sortOrder=descending'
 
 # List of year month combinations for id query
 
-yymm = ['1901', '1902', '1903', '1904', '1905', '1906', '1907', '1908', '1909',
-        '1910', '1911', '1912', '2001', '2002', '2003', '2004', '2005']
+yymm = ['1801', '1802', '1803', '1804', '1805', '1806', '1807', '1808',
+        '1809', '1810', '1811', '1812', '1901', '1902', '1903', '1904',
+        '1905', '1906', '1907', '1908', '1909', '1910', '1911', '1912',
+        '2001', '2002', '2003', '2004', '2005', '2006']
 
 # Running the outer loop
 
