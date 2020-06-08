@@ -125,8 +125,9 @@ for link in links:
         
         continue
 
-MDPI_df = pd.DataFrame({'Submitted': submitted, 'Revised': revised, 'Accepted': accepted, 'Published': published,
-                        'Title':titles, 'Journal': journals, 'Affiliations': affiliations})
+MDPI_df = pd.DataFrame({'Submitted': submitted, 'Revised': revised, 'Accepted': accepted,
+                        'Published': published, 'Title':titles, 'Journal': journals,
+                        'Affiliations': affiliations, 'Abstract': abstracts, 'Keywords': keywords})
 
 MDPI_df.to_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_papers_all.csv', index = False, encoding = 'utf-8-sig')
 
