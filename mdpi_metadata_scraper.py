@@ -26,6 +26,7 @@ submitted = []
 revised = []
 accepted = []
 published = []
+titles = []
 
 for link in links:
     
@@ -36,11 +37,21 @@ for link in links:
         response = urllib.request.urlopen(page)
         soup = bs(response, 'html.parser')
         data = soup.find_all('div')
+        hdata = soup.find_all('h1')
         paper_affiliations = []
         bib_journals = []
         bib_years = []
         temp_affs = []
 
+        for hd in hdata:
+            
+            if str(hd)[0:27] == '<h1 class="title hypothesis':
+                
+                x1 = str(hd).find('\n')
+                x2 = str(hd).find('<\h')
+                title = str(hd)[x1:x2]
+                titles.append(title)
+                
         for dat in data:
 
             if str(dat)[0:28] == '<div class="affiliation-name':
@@ -97,8 +108,8 @@ for link in links:
         
         continue
 
-MDPI_df = pd.DataFrame({'Submitted': submitted, 'Revised': revised, 'Accepted': accepted,
-                        'Published': published, 'Journal': journals, 'Affiliations': affiliations})
+MDPI_df = pd.DataFrame({'Submitted': submitted, 'Revised': revised, 'Accepted': accepted, 'Published': published,
+                        'Title':titles, 'Journal': journals, 'Affiliations': affiliations})
 
 MDPI_df.to_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_papers_all.csv', index = False, encoding = 'utf-8-sig')
 
