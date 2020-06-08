@@ -27,6 +27,8 @@ revised = []
 accepted = []
 published = []
 titles = []
+abstracts = []
+keywords = []
 
 for link in links:
     
@@ -41,8 +43,9 @@ for link in links:
         paper_affiliations = []
         bib_journals = []
         bib_years = []
+        bib_keywords = []
         temp_affs = []
-
+        
         for hd in hdata:
             
             if str(hd)[0:27] == '<h1 class="title hypothesis':
@@ -51,7 +54,7 @@ for link in links:
                 x2 = str(hd).find('<\h')
                 title = str(hd)[x1+1:x2]
                 titles.append(title)
-                
+        
         for dat in data:
 
             if str(dat)[0:28] == '<div class="affiliation-name':
@@ -65,6 +68,20 @@ for link in links:
             if str(dat)[0:23] == '<div class="pubhistory"':
 
                 bib_years.append(dat)
+                
+            if str(dat)[0:24] == '<div class="art-abstract':
+                
+                x1 = str(dat).find('>')
+                x2 = str(dat).find('<a')
+                abstract = str(dat)[x1+1:x2]
+                abstracts.append(abstract)
+                    
+            if str(dat)[0:24] == '<div class="art-keywords':
+                
+                spans = dat.find_all('span')
+                s1 = str(spans[0]).find('>')
+                s2 = str(spans[0]).find('</span')
+                keywords.append(str(spans[0])[s1+1:s2])
 
         for aff in paper_affiliations:
 
