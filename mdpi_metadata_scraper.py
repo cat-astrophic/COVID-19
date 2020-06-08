@@ -49,7 +49,7 @@ for link in links:
                 
                 x1 = str(hd).find('\n')
                 x2 = str(hd).find('<\h')
-                title = str(hd)[x1:x2]
+                title = str(hd)[x1+1:x2]
                 titles.append(title)
                 
         for dat in data:
