@@ -16,6 +16,8 @@ published = raw_data.Published.to_list()
 titles = raw_data.Title.to_list()
 journals = raw_data.Journal.to_list()
 affiliations = raw_data.Affiliations.to_list()
+abstracts = raw_data.Abstract.to_list()
+keywords = raw_data.Keywords.to_list()
 
 del(raw_data) # save RAM
 
@@ -79,7 +81,8 @@ edit = pd.Series(edit).dt.days.to_list()
 
 MDPI_df = pd.DataFrame({'Stage1': stage1, 'Stage2': stage2, 'Stage3': stage3, 'Total': totals, 'Editor': edit,
                         'Submitted': submitted_clean, 'Revised': revised_clean, 'Accepted': accepted_clean,
-                        'Published': published_clean, 'Title':titles, 'Journal': journals, 'Affiliations': affiliations})
+                        'Published': published_clean, 'Title':titles, 'Journal': journals, 'Affiliations': affiliations,
+                        'Abstract': abstracts, 'Keywords':keywords})
 
 MDPI_df.to_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_papers.csv', index = False, encoding = 'utf-8-sig')
 
