@@ -18,7 +18,7 @@ def affiliation_finder(string):
     
     return any(s.isdigit() for s in string)
 
-# loop bc it keep fucking up
+# Run this in blocks because the power keeps flashing three days in :)
 
 for i in range(6):
     
@@ -108,30 +108,34 @@ for i in range(6):
             if len(temp_affs) > 0:
     
                 affiliations.append(temp_affs)
+            
+            else:
+                
+                affiliations.append('')
     
-                for bib in bib_journals:
+            for bib in bib_journals:
     
-                    yr1 = str(bib).find('<em>')
-                    yr2 = str(bib)[yr1+4:].find('</em>')
-                    journals.append(str(bib)[yr1+4:yr1+yr2+4])
+                yr1 = str(bib).find('<em>')
+                yr2 = str(bib)[yr1+4:].find('</em>')
+                journals.append(str(bib)[yr1+4:yr1+yr2+4])
     
-                for bib in bib_years:
+            for bib in bib_years:
     
-                    j1 = str(bib).find('Received: ')
-                    j2 = str(bib)[j1+10:].find('/')
-                    submitted.append(str(bib)[j1+10:j1+j2+9])
+                j1 = str(bib).find('Received: ')
+                j2 = str(bib)[j1+10:].find('/')
+                submitted.append(str(bib)[j1+10:j1+j2+9])
                     
-                    j1 = str(bib).find('Revised: ')
-                    j2 = str(bib)[j1+9:].find('/')
-                    revised.append(str(bib)[j1+9:j1+j2+8])
+                j1 = str(bib).find('Revised: ')
+                j2 = str(bib)[j1+9:].find('/')
+                revised.append(str(bib)[j1+9:j1+j2+8])
                     
-                    j1 = str(bib).find('Accepted: ')
-                    j2 = str(bib)[j1+10:].find('/')
-                    accepted.append(str(bib)[j1+10:j1+j2+9])
+                j1 = str(bib).find('Accepted: ')
+                j2 = str(bib)[j1+10:].find('/')
+                accepted.append(str(bib)[j1+10:j1+j2+9])
                     
-                    j1 = str(bib).find('Published: ')
-                    j2 = str(bib)[j1+11:].find('<')
-                    published.append(str(bib)[j1+11:j1+j2+10])
+                j1 = str(bib).find('Published: ')
+                j2 = str(bib)[j1+11:].find('<')
+                published.append(str(bib)[j1+11:j1+j2+10])
             
         except:
             
