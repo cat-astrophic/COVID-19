@@ -6,7 +6,7 @@ import pandas as pd
 
 # Read in the data
 
-data = pd.read_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_papers_all.csv')
+data = pd.read_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_papers.csv')
 
 # A dictionary for assigning each journal to a Frascati Manual category
 
@@ -274,5 +274,5 @@ data = pd.concat([data, cats], axis = 1)
 
 # Writing the data to file
 
-data.to_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_times_raw_data.csv', index = False)
+data.to_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_papers_with_FM.csv', index = False)
 
