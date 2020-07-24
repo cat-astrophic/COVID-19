@@ -2,7 +2,7 @@
 
 """ NOTE TO USERS:
     
-    Specify the directory for storing data - lines 151, 157, 163, 169, 176 """
+    Specify the directory for storing data - lines 150, 156, 162, 168, 175 """
 
 # Importing required modules
 
