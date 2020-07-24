@@ -27,20 +27,49 @@ submitted_clean = []
 revised_clean = []
 accepted_clean = []
 published_clean = []
+blanks = []
 
 for i in range(len(submitted)):
     
-    d = datetime.strptime(submitted[i], '%d %B %Y')
-    submitted_clean.append(d.strftime('%Y-%m-%d'))
-    
-    d = datetime.strptime(revised[i], '%d %B %Y')
-    revised_clean.append(d.strftime('%Y-%m-%d'))
-    
-    d = datetime.strptime(accepted[i], '%d %B %Y')
-    accepted_clean.append(d.strftime('%Y-%m-%d'))
-    
-    d = datetime.strptime(published[i], '%d %B %Y')
-    published_clean.append(d.strftime('%Y-%m-%d'))
+    try:
+
+        d = datetime.strptime(submitted[i], '%d %B %Y')
+        submitted_clean.append(d.strftime('%Y-%m-%d'))
+        
+    except:
+        
+        submitted_clean.append('')
+        blanks.append(i)
+        
+    try:
+        
+        d = datetime.strptime(revised[i], '%d %B %Y')
+        revised_clean.append(d.strftime('%Y-%m-%d'))
+        
+    except:
+        
+        revised_clean.append('')
+        blanks.append(i)
+        
+    try:
+        
+        d = datetime.strptime(accepted[i], '%d %B %Y')
+        accepted_clean.append(d.strftime('%Y-%m-%d'))
+        
+    except:
+        
+        accepted_clean.append('')
+        blanks.append(i)
+        
+    try:
+        
+        d = datetime.strptime(published[i], '%d %B %Y')
+        published_clean.append(d.strftime('%Y-%m-%d'))
+        
+    except:
+        
+        published_clean.append('')
+        blanks.append(i)
 
 # Computing times between status changes for papers
 
@@ -52,22 +81,116 @@ edit = []
 
 for i in range(len(submitted)):
     
-    # a measure of time taken by both reviewers + authors
-    sub_to_rev = datetime.strptime(revised_clean[i], '%Y-%m-%d') - datetime.strptime(submitted_clean[i], '%Y-%m-%d')
-    # a measure of time taken by editors
-    rev_to_acc = datetime.strptime(accepted_clean[i], '%Y-%m-%d') - datetime.strptime(revised_clean[i], '%Y-%m-%d')
-    # a measure of time taken by editorial staff
-    acc_to_pub = datetime.strptime(published_clean[i], '%Y-%m-%d') - datetime.strptime(accepted_clean[i], '%Y-%m-%d')
-    # a measure of the total time taken by the publishing process
-    total_time = datetime.strptime(published_clean[i], '%Y-%m-%d') - datetime.strptime(submitted_clean[i], '%Y-%m-%d')
-    # a measure of the total time taken by the journal to get an ultimately accepted article into press
-    ed_time = datetime.strptime(published_clean[i], '%Y-%m-%d') - datetime.strptime(revised_clean[i], '%Y-%m-%d')
+    try: # a measure of time taken by both reviewers + authors
+        
+        sub_to_rev = datetime.strptime(revised_clean[i], '%Y-%m-%d') - datetime.strptime(submitted_clean[i], '%Y-%m-%d')
+
+    except:
+        
+        sub_to_rev = ''
+        blanks.append(i)
+
+    try: # a measure of time taken by editors
+        
+        rev_to_acc = datetime.strptime(accepted_clean[i], '%Y-%m-%d') - datetime.strptime(revised_clean[i], '%Y-%m-%d')
+        
+    except:
+        
+        rev_to_acc = ''
+        blanks.append(i)
+        
+    try: # a measure of time taken by editorial staff
+        
+        acc_to_pub = datetime.strptime(published_clean[i], '%Y-%m-%d') - datetime.strptime(accepted_clean[i], '%Y-%m-%d')
+        
+    except:
+        
+        acc_to_pub = ''
+        blanks.append(i)
+        
+    try: # a measure of the total time taken by the publishing process
+        
+        total_time = datetime.strptime(published_clean[i], '%Y-%m-%d') - datetime.strptime(submitted_clean[i], '%Y-%m-%d')
+        
+    except:
+        
+        total_time = ''
+        blanks.append(i)
+        
+    try: # a measure of the total time taken by the journal to get an ultimately accepted article into press
+        
+        ed_time = datetime.strptime(published_clean[i], '%Y-%m-%d') - datetime.strptime(revised_clean[i], '%Y-%m-%d')
     
+    except:
+        
+        ed_time = ''
+        blanks.append(i)
+        
     stage1.append(sub_to_rev)
     stage2.append(rev_to_acc)
     stage3.append(acc_to_pub)
     totals.append(total_time)
     edit.append(ed_time)
+
+# Removing lines with blank entries in order to use the .dt method
+
+for i in range(len(stage1)):
+    
+    if str(stage1[i]) == '0:00:00':
+        
+        blanks.append(i)
+    
+    if str(stage2[i]) == '0:00:00':
+    
+        blanks.append(i)
+        
+    if str(stage3[i]) == '0:00:00':
+        
+        blanks.append(i)
+        
+    if str(totals[i]) == '0:00:00':
+        
+        blanks.append(i)
+        
+    if str(edit[i]) == '0:00:00':
+        
+        blanks.append(i)
+
+blanks = list(sorted(pd.Series(blanks).unique()))[::-1]
+
+for b in blanks:
+    
+    del(stage1[b])
+    del(stage2[b])
+    del(stage3[b])
+    del(totals[b])
+    del(edit[b])
+    del(submitted_clean[b])
+    del(revised_clean[b])
+    del(accepted_clean[b])
+    del(published_clean[b])
+    del(titles[b])
+    del(journals[b])
+    del(affiliations[b])
+    del(abstracts[b])
+    del(keywords[b])
+
+# This is a fix of a manually discovered bug
+
+del(stage1[276405])
+del(stage2[276405])
+del(stage3[276405])
+del(totals[276405])
+del(edit[276405])
+del(submitted_clean[276405])
+del(revised_clean[276405])
+del(accepted_clean[276405])
+del(published_clean[276405])
+del(titles[276405])
+del(journals[276405])
+del(affiliations[276405])
+del(abstracts[276405])
+del(keywords[276405])
 
 # Converting timedeltas to integer values
 
