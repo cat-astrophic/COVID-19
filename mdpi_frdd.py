@@ -47,15 +47,15 @@ journals = []
 
 for journal in papers.Journal.unique():
     
-    j = papers[papers.Journal == journal]
+    j = papers[papers.Journal == journal].reset_index()
     
     if datetime.datetime.strptime(min(j.Submitted), '%Y-%m-%d') < datetime.datetime.strptime('2020-01-01', '%Y-%m-%d') and datetime.datetime.strptime(max(j.Submitted), '%Y-%m-%d') > datetime.datetime.strptime('2020-01-01', '%Y-%m-%d'):
         
-        journals.append(j)
+        journals.append(j.Journal[0])
 
 # Subset data based on journals
 
-df = papers[papers.Journal.isin(journals)] # SOOOOOOOOOOOOOOOOOO SLOOOOOOOOOOOOOOOOOOOOW.....
+df = papers[papers.Journal.isin(journals)]
 
 # how much time around cutoff and should it be symmetric in time?
 
