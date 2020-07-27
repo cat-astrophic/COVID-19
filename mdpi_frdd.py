@@ -38,9 +38,6 @@ c19 = [covid(papers, row) for row in range(len(papers))]
 c19 = pd.Series(c19, name = 'COVID')
 papers = pd.concat([papers, c19], axis = 1)
 
-# need to remove papers from journals that did not have publications prior to COVID
-    # this could be done by only considering journals that published papers in 2019
-
 # Create a list of journals which will be included in the study - those with pubs in both 2020 and pre-2020
 
 journals = []
@@ -49,22 +46,59 @@ for journal in papers.Journal.unique():
     
     j = papers[papers.Journal == journal].reset_index()
     
-    if datetime.datetime.strptime(min(j.Submitted), '%Y-%m-%d') < datetime.datetime.strptime('2020-01-01', '%Y-%m-%d') and datetime.datetime.strptime(max(j.Submitted), '%Y-%m-%d') > datetime.datetime.strptime('2020-01-01', '%Y-%m-%d'):
+    if datetime.datetime.strptime(min(j.Accepted), '%Y-%m-%d') < datetime.datetime.strptime('2020-01-01', '%Y-%m-%d') and datetime.datetime.strptime(max(j.Accepted), '%Y-%m-%d') > datetime.datetime.strptime('2020-01-01', '%Y-%m-%d'):
         
         journals.append(j.Journal[0])
 
 # Subset data based on journals
 
-df = papers[papers.Journal.isin(journals)]
+df = papers[papers.Journal.isin(journals)].reset_index()
 
 # how much time around cutoff and should it be symmetric in time?
+# need to remove papers from journals that did not have publications prior to COVID
+# this could be done by only considering journals that published papers in 2019
 
 
+# Data visualization
+d0 = datetime.datetime.strptime('2018-12-31', '%Y-%m-%d')
+days = [d0 + datetime.timedelta(days = d) for d in range(548)]
+check = [1 if datetime.datetime.strptime(x, '%Y-%m-%d') > d0 else 0 for x in df.Submitted]
+ddf = pd.concat([df, pd.Series(check, name = 'check')], axis = 1)
+ddf = ddf[ddf.check == 1].reset_index()
+com = []
+for d in days:
+    count = 0
+    s = 0
+    for c in range(len(ddf.Submitted)):
+        if datetime.datetime.strptime(str(ddf.Submitted[c]), '%Y-%m-%d') == d:
+            count += 1
+            s += ddf.Total[c]
+    if count > 0:
+        val = s/count
+        com.append(val)
+    else:
+        com.append(0)
+plt.plot(com) # includes covid papers
+ddf = ddf[ddf.COVID == 0].reset_index(drop=True)
+com2 = []
+for d in days:
+    count = 0
+    s = 0
+    for c in range(len(ddf.Submitted)):
+        if datetime.datetime.strptime(str(ddf.Submitted[c]), '%Y-%m-%d') == d:
+            count += 1
+            s += ddf.Total[c]
+    if count > 0:
+        val = s/count
+        com2.append(val)
+    else:
+        com2.append(0)
+plt.plot(com2) # covid papers removed
 
 
-
-
-
+plt.figure(figsize = (8,5))
+plt.plot(com, color = 'black')
+plt.plot(com2, color = 'red')
 
 
 
