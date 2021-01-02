@@ -24,13 +24,13 @@ for i in range(6):
     
     if i < 5:
         
-        links2 = links[60000*i:60000*(i+1)]
+        links2 = links[50000*i:50000*(i+1)]
         
     else:
         
-        link2 = links[300000:]
+        links2 = links[250000:]
 
-    # Go to each links and extract the desired data
+    # Go to each link and extract the desired data
     
     affiliations = []
     journals = []
@@ -41,7 +41,8 @@ for i in range(6):
     titles = []
     abstracts = []
     keywords = []
-    
+    authors = []
+        
     for link in links2:
         
         try:
@@ -57,6 +58,7 @@ for i in range(6):
             bib_years = []
             bib_keywords = []
             temp_affs = []
+            no_keys = True
             
             for hd in hdata:
                 
@@ -68,6 +70,9 @@ for i in range(6):
                     titles.append(title)
             
             for dat in data:
+                
+                temp_keys = []
+                temp_auths = []
     
                 if str(dat)[0:28] == '<div class="affiliation-name':
     
@@ -90,21 +95,45 @@ for i in range(6):
                         
                 if str(dat)[0:24] == '<div class="art-keywords':
                     
+                    no_keys = False
                     spans = dat.find_all('span')
-                    s1 = str(spans[0]).find('>')
-                    s2 = str(spans[0]).find('</span')
-                    keywords.append(str(spans[0])[s1+1:s2])
-    
+                    
+                    for span in spans:
+                        
+                        s1 = str(spans[0]).find('>')
+                        s2 = str(spans[0]).find('</span')
+                        temp_keys.append(str(span)[s1+1:s2])
+                    
+                    keywords.append(temp_keys[0])
+                    
+                if str(dat)[0:23] == '<div class="art-authors':
+                    
+                    spans = dat.find_all('span')
+                    
+                    for span in spans:
+                        
+                        s1 = str(span).find('link__name">')
+                        s2 = str(span).find('</span')
+                        temp_auths.append(str(span)[s1+12:s2])
+                        
+                    idxset = [i for i in range(len(temp_auths)) if i%3 == 0]
+                    temp_auths_clean = [temp_auths[i] for i in idxset]
+                    authors.append(temp_auths_clean)
+                    
+            if no_keys == True:
+                
+                keywords.append(temp_keys)
+            
             for aff in paper_affiliations:
-    
+                
                 c1 = str(aff).find('>')
                 c2 = str(aff)[c1+1:].find('<')
                 s = str(aff)[c1+1:c1+c2+1]
-    
+                
                 if affiliation_finder(str(aff)) is True:
-    
+                    
                     temp_affs.append(s)
-    
+                    
             if len(temp_affs) > 0:
     
                 affiliations.append(temp_affs)
@@ -143,7 +172,8 @@ for i in range(6):
     
     MDPI_df = pd.DataFrame({'Submitted': submitted, 'Revised': revised, 'Accepted': accepted,
                             'Published': published, 'Title':titles, 'Journal': journals,
-                            'Affiliations': affiliations, 'Abstract': abstracts, 'Keywords': keywords})
+                            'Affiliations': affiliations, 'Abstract': abstracts,
+                            'Keywords': keywords, 'Authors': authors})
     
     MDPI_df.to_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_papers_all' + str(i+1) + '.csv', index = False, encoding = 'utf-8-sig')
     
