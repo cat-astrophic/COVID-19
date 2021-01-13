@@ -7,11 +7,15 @@ import datetime
 
 # Reading in the data
 
+print('Reading in the data.......')
+
 papers = pd.read_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_papers_with_FM.csv')
 arxiv_raw =  pd.read_csv('C:/Users/User/Documents/Data/COVID-19/updated_dates.txt', header = None)
 arxiv_new_raw =  pd.read_csv('C:/Users/User/Documents/Data/COVID-19/submission_dates.txt', header = None)
 
 # Convert arxiv data to lists
+
+print('Converting raw arxiv data to datetime.......')
 
 arxiv_raw = arxiv_raw[0].to_list()
 arxiv_new_raw = arxiv_new_raw[0].to_list()
@@ -23,8 +27,8 @@ arxiv_new = [datetime.datetime.strptime(x, '%Y-%m-%d') for x in arxiv_new_raw]
 
 # Counting the number of arxiv submissions in week prior to each date
 
-d0 = datetime.datetime.strptime('2015-01-01', '%Y-%m-%d')
-days = [d0 + datetime.timedelta(days = d) for d in range(2100)]
+d0 = datetime.datetime.strptime('2019-01-01', '%Y-%m-%d')
+days = [d0 + datetime.timedelta(days = d) for d in range(731)]
 counts7 = []
 counts14 = []
 counts30 = []
@@ -33,6 +37,8 @@ counts_new14 = []
 counts_new30 = []
 
 # Creating primary data
+
+print('Creating total arxiv volume data.......')
 
 for day in days:
     
@@ -66,6 +72,8 @@ for day in days:
 
 # Creating data for robustness checks
 
+print('Creating new submissions arxiv volume data.......')
+
 for day in days:
     
     print(day) # for watching progress
@@ -98,6 +106,8 @@ for day in days:
 
 # Create final arxiv submission count data (and final count data for robustness checks)
 
+print('Finding the arxiv data for each paper.......')
+
 arxiv7 = [counts7[days.index(datetime.datetime.strptime(papers.Submitted[row], '%Y-%m-%d'))] if datetime.datetime.strptime(papers.Submitted[row], '%Y-%m-%d') >= d0 else '' for row in range(len(papers))]
 arxiv14 = [counts14[days.index(datetime.datetime.strptime(papers.Submitted[row], '%Y-%m-%d'))] if datetime.datetime.strptime(papers.Submitted[row], '%Y-%m-%d') >= d0 else '' for row in range(len(papers))]
 arxiv30 = [counts30[days.index(datetime.datetime.strptime(papers.Submitted[row], '%Y-%m-%d'))] if datetime.datetime.strptime(papers.Submitted[row], '%Y-%m-%d') >= d0 else '' for row in range(len(papers))]
@@ -106,6 +116,8 @@ new14 = [counts_new14[days.index(datetime.datetime.strptime(papers.Submitted[row
 new30 = [counts_new30[days.index(datetime.datetime.strptime(papers.Submitted[row], '%Y-%m-%d'))] if datetime.datetime.strptime(papers.Submitted[row], '%Y-%m-%d') >= d0 else '' for row in range(len(papers))]
 
 # Appending arxiv count data to the data set
+
+print('Creating final data set and writing to file.......')
 
 arxiv7 = pd.Series(arxiv7, name = 'arXiv7')
 arxiv14 = pd.Series(arxiv14, name = 'arXiv14')
