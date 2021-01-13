@@ -7,6 +7,8 @@ import pandas as pd
 
 # Reading in the raw data
 
+print('Reading in the data.......')
+
 raw_data = pd.read_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_papers_all.csv', encoding = 'utf-8')
 
 submitted = raw_data.Submitted.to_list()
@@ -18,10 +20,13 @@ journals = raw_data.Journal.to_list()
 affiliations = raw_data.Affiliations.to_list()
 abstracts = raw_data.Abstract.to_list()
 keywords = raw_data.Keywords.to_list()
+authors = raw_data.Authors.to_list()
 
 del(raw_data) # save RAM
 
 # Creating lists of clean datetime data
+
+print('Cleaning the datetime data.......')
 
 submitted_clean = []
 revised_clean = []
@@ -72,6 +77,8 @@ for i in range(len(submitted)):
         blanks.append(i)
 
 # Computing times between status changes for papers
+
+print('Computing the datetime data.......')
 
 stage1 = []
 stage2 = []
@@ -134,6 +141,8 @@ for i in range(len(submitted)):
 
 # Removing lines with blank entries in order to use the .dt method
 
+print('Cleaning the remaining data.......')
+
 for i in range(len(stage1)):
     
     if str(stage1[i]) == '0:00:00':
@@ -174,25 +183,11 @@ for b in blanks:
     del(affiliations[b])
     del(abstracts[b])
     del(keywords[b])
-
-# This is a fix of a manually discovered bug
-
-del(stage1[276405])
-del(stage2[276405])
-del(stage3[276405])
-del(totals[276405])
-del(edit[276405])
-del(submitted_clean[276405])
-del(revised_clean[276405])
-del(accepted_clean[276405])
-del(published_clean[276405])
-del(titles[276405])
-del(journals[276405])
-del(affiliations[276405])
-del(abstracts[276405])
-del(keywords[276405])
+    del(authors[b])
 
 # Converting timedeltas to integer values
+
+print('Coverting datetime data to integer values.......')
 
 stage1 = pd.Series(stage1).dt.days.to_list()
 stage2 = pd.Series(stage2).dt.days.to_list()
@@ -202,10 +197,14 @@ edit = pd.Series(edit).dt.days.to_list()
 
 # Saving to file
 
+print('Creating final dataframe.......')
+
 MDPI_df = pd.DataFrame({'Stage1': stage1, 'Stage2': stage2, 'Stage3': stage3, 'Total': totals, 'Editor': edit,
                         'Submitted': submitted_clean, 'Revised': revised_clean, 'Accepted': accepted_clean,
                         'Published': published_clean, 'Title':titles, 'Journal': journals, 'Affiliations': affiliations,
-                        'Abstract': abstracts, 'Keywords':keywords})
+                        'Abstract': abstracts, 'Keywords':keywords, 'Authors':authors})
+
+print('Saving data to file.......')
 
 MDPI_df.to_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_papers.csv', index = False, encoding = 'utf-8-sig')
 
