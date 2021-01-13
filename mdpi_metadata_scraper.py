@@ -20,15 +20,15 @@ def affiliation_finder(string):
 
 # Run this in blocks because the power keeps flashing three days in :)
 
-for i in range(6):
+for i in range(28):
     
-    if i < 5:
+    if i < 27:
         
-        links2 = links[50000*i:50000*(i+1)]
+        links2 = links[10000*i:10000*(i+1)]
         
     else:
         
-        links2 = links[250000:]
+        links2 = links[270000:]
 
     # Go to each link and extract the desired data
     
@@ -175,5 +175,16 @@ for i in range(6):
                             'Affiliations': affiliations, 'Abstract': abstracts,
                             'Keywords': keywords, 'Authors': authors})
     
-    MDPI_df.to_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_papers_all' + str(i+1) + '.csv', index = False, encoding = 'utf-8-sig')
+    MDPI_df.to_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_papers_all_' + str(i+1) + '_of_28.csv', index = False, encoding = 'utf-8-sig')
     
+# Combining all 28 batches into a single file
+
+df = pd.DataFrame()
+
+for i in range(28):
+    
+    temp = pd.read_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_papers_all_' + str(i+1) + '_of_28.csv')
+    df = pd.concat([df,temp], axis = 0)
+
+df.to_csv('C:/Users/User/Documents/Data/COVID-19/MDPI_papers_all.csv')
+
