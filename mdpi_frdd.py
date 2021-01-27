@@ -94,9 +94,9 @@ papers = pd.concat([papers, c19], axis = 1)
 post_study_papers = ['lol' for i in range(len(papers)) if datetime.datetime.strptime(papers.Submitted[i], '%Y-%m-%d') > datetime.datetime.strptime('2020-06-30', '%Y-%m-%d')]
 poststudy_covid = ['lol' for i in range(len(papers)) if datetime.datetime.strptime(papers.Submitted[i], '%Y-%m-%d') > datetime.datetime.strptime('2020-06-30', '%Y-%m-%d') and papers.COVID[i] == 1]
 
-# Create a list of journals which will be included in the study - those with pubs prior to 2019
+# Create a list of journals which will be included in the study - those with pubs prior to 2020
 
-print('Removing papers from journals first published post 2019-01-01.......')
+print('Removing papers from journals first published post 2020-01-01.......')
 
 journals = []
 
@@ -116,9 +116,9 @@ df = papers[papers.Journal.isin(journals)].reset_index(drop = True)
 
 print('Removing papers from outside of the study time frame.......')
 
-post1911 = [int(datetime.datetime.strptime(df.Submitted[i], '%Y-%m-%d') > datetime.datetime.strptime('2019-11-30', '%Y-%m-%d')) for i in range(len(df))]
+post1812 = [int(datetime.datetime.strptime(df.Submitted[i], '%Y-%m-%d') > datetime.datetime.strptime('2018-12-31', '%Y-%m-%d')) for i in range(len(df))]
 pre2007 = [int(datetime.datetime.strptime(df.Submitted[i], '%Y-%m-%d') < datetime.datetime.strptime('2020-07-01', '%Y-%m-%d')) for i in range(len(df))]
-study = pd.Series([post1911[i] * pre2007[i] for i in range(len(post1911))], name = 'Study')
+study = pd.Series([post1812[i] * pre2007[i] for i in range(len(post1812))], name = 'Study')
 df = pd.concat([df, study], axis = 1)
 df = df[df.Study == 1].reset_index(drop = True)
 
@@ -182,7 +182,7 @@ def all_auths(inp,nu):
     
     if nu % 100 == 0: # Just a visual queue because this isn't particularly fast
         
-        print('Working on records ' + str(nu+1) + ' through ' + str(nu+101) + ' of 77,595.......')
+        print('Working on records ' + str(nu+1) + ' through ' + str(nu+101) + ' of 167,703.......')
     
     gd = gender.Detector()
     listicle = []
@@ -267,7 +267,7 @@ def quart(inp,nu):
     
     if nu % 100 == 0: # Just a visual queue because this isn't particularly fast
         
-        print('Working on records ' + str(nu+1) + ' through ' + str(nu+101) + ' of 77,595.......')
+        print('Working on records ' + str(nu+1) + ' through ' + str(nu+101) + ' of 167,703.......')
     
     listicle = []
     
@@ -316,7 +316,7 @@ quarts = pd.Series(quarts, name = 'Top_Quartile')
 q1 = pd.Series(q1, name = 'Q1')
 df = pd.concat([df, quarts, q1], axis = 1)
 
-# 602 of 77,595 had no discernable Nationality and are dropped here
+# 5443 of 167,703 had no discernable Nationality and are dropped here
 
 df = df[df.First_Quartile != ''].reset_index(drop = True)
 
@@ -350,8 +350,20 @@ print('Calculating distances from thresholds.......')
 
 XX = [datetime.datetime.strptime(df.Submitted[i], '%Y-%m-%d') - datetime.datetime.strptime('2020-03-16', '%Y-%m-%d') for i in range(len(df))]
 XX = [x.days for x in XX]
-XX = pd.Series(XX, name = 'X')
+XX = pd.Series(XX, name = 'X-c')
 df = pd.concat([df, XX], axis = 1)
+
+# Squared distance from March 16 (middle of March)
+
+XX2 = df['X-c']*df['X-c']
+XX2 = pd.Series(XX2, name = '(X-c)^2')
+df = pd.concat([df, XX2], axis = 1)
+
+# Cubed distance from March 16 (middle of March)
+
+XX3 = df['X-c']*df['X-c']*df['X-c']
+XX3 = pd.Series(XX3, name = '(X-c)^3')
+df = pd.concat([df, XX3], axis = 1)
 
 # Distance from surrounding days to serve as robustness checks
 
@@ -373,13 +385,13 @@ XX05 = [x.days for x in XX05]
 XX06 = [x.days for x in XX06]
 XX07 = [x.days for x in XX07]
 
-XX01 = pd.Series(XX01, name = 'X-1')
-XX02 = pd.Series(XX02, name = 'X-2')
-XX03 = pd.Series(XX03, name = 'X-3')
-XX04 = pd.Series(XX04, name = 'X-4')
-XX05 = pd.Series(XX05, name = 'X-5')
-XX06 = pd.Series(XX06, name = 'X-6')
-XX07 = pd.Series(XX07, name = 'X-7')
+XX01 = pd.Series(XX01, name = 'X-1-c')
+XX02 = pd.Series(XX02, name = 'X-2-c')
+XX03 = pd.Series(XX03, name = 'X-3-c')
+XX04 = pd.Series(XX04, name = 'X-4-c')
+XX05 = pd.Series(XX05, name = 'X-5-c')
+XX06 = pd.Series(XX06, name = 'X-6-c')
+XX07 = pd.Series(XX07, name = 'X-7-c')
 
 df = pd.concat([df, XX01, XX02, XX03, XX04, XX05, XX06, XX07], axis = 1)
 
@@ -401,33 +413,37 @@ XX15 = [x.days for x in XX15]
 XX16 = [x.days for x in XX16]
 XX17 = [x.days for x in XX17]
 
-XX11 = pd.Series(XX11, name = 'X+1')
-XX12 = pd.Series(XX12, name = 'X+2')
-XX13 = pd.Series(XX13, name = 'X+3')
-XX14 = pd.Series(XX14, name = 'X+4')
-XX15 = pd.Series(XX15, name = 'X+5')
-XX16 = pd.Series(XX16, name = 'X+6')
-XX17 = pd.Series(XX17, name = 'X+7')
+XX11 = pd.Series(XX11, name = 'X+1-c')
+XX12 = pd.Series(XX12, name = 'X+2-c')
+XX13 = pd.Series(XX13, name = 'X+3-c')
+XX14 = pd.Series(XX14, name = 'X+4-c')
+XX15 = pd.Series(XX15, name = 'X+5-c')
+XX16 = pd.Series(XX16, name = 'X+6-c')
+XX17 = pd.Series(XX17, name = 'X+7-c')
 
 df = pd.concat([df, XX11, XX12, XX13, XX14, XX15, XX16, XX17], axis = 1)
 
 # Adding the post-effect variables for the main regression
 
-D = [1 if df.X[i] >= 0 else 0 for i in range(len(df))]
+D = [1 if df['X-c'][i] >= 0 else 0 for i in range(len(df))]
 D = pd.Series(D, name = 'D')
-DXc = D*df.X
+DXc = D*df['X-c']
+DXc2 = D*df['X-c']*df['X-c']
+DXc3 = D*df['X-c']*df['X-c']*df['X-c']
 DXc = pd.Series(DXc, name = 'D(X-c)')
-df = pd.concat([df, D, DXc], axis = 1)
+DXc2 = pd.Series(DXc2, name = 'D(X-c)^2')
+DXc3 = pd.Series(DXc3, name = 'D(X-c)^3')
+df = pd.concat([df, D, DXc, DXc2, DXc3], axis = 1)
 
 # Adding the post-effect variables for the robustness checks
 
-D01 = [1 if df['X-1'][i] >= 0 else 0 for i in range(len(df))]
-D02 = [1 if df['X-2'][i] >= 0 else 0 for i in range(len(df))]
-D03 = [1 if df['X-3'][i] >= 0 else 0 for i in range(len(df))]
-D04 = [1 if df['X-4'][i] >= 0 else 0 for i in range(len(df))]
-D05 = [1 if df['X-5'][i] >= 0 else 0 for i in range(len(df))]
-D06 = [1 if df['X-6'][i] >= 0 else 0 for i in range(len(df))]
-D07 = [1 if df['X-7'][i] >= 0 else 0 for i in range(len(df))]
+D01 = [1 if df['X-1-c'][i] >= 0 else 0 for i in range(len(df))]
+D02 = [1 if df['X-2-c'][i] >= 0 else 0 for i in range(len(df))]
+D03 = [1 if df['X-3-c'][i] >= 0 else 0 for i in range(len(df))]
+D04 = [1 if df['X-4-c'][i] >= 0 else 0 for i in range(len(df))]
+D05 = [1 if df['X-5-c'][i] >= 0 else 0 for i in range(len(df))]
+D06 = [1 if df['X-6-c'][i] >= 0 else 0 for i in range(len(df))]
+D07 = [1 if df['X-7-c'][i] >= 0 else 0 for i in range(len(df))]
 
 D01 = pd.Series(D01, name = 'D-1')
 D02 = pd.Series(D02, name = 'D-2')
@@ -437,13 +453,13 @@ D05 = pd.Series(D05, name = 'D-5')
 D06 = pd.Series(D06, name = 'D-6')
 D07 = pd.Series(D07, name = 'D-7')
 
-D11 = [1 if df['X+1'][i] >= 0 else 0 for i in range(len(df))]
-D12 = [1 if df['X+2'][i] >= 0 else 0 for i in range(len(df))]
-D13 = [1 if df['X-3'][i] >= 0 else 0 for i in range(len(df))]
-D14 = [1 if df['X+4'][i] >= 0 else 0 for i in range(len(df))]
-D15 = [1 if df['X+5'][i] >= 0 else 0 for i in range(len(df))]
-D16 = [1 if df['X+6'][i] >= 0 else 0 for i in range(len(df))]
-D17 = [1 if df['X+7'][i] >= 0 else 0 for i in range(len(df))]
+D11 = [1 if df['X+1-c'][i] >= 0 else 0 for i in range(len(df))]
+D12 = [1 if df['X+2-c'][i] >= 0 else 0 for i in range(len(df))]
+D13 = [1 if df['X-3-c'][i] >= 0 else 0 for i in range(len(df))]
+D14 = [1 if df['X+4-c'][i] >= 0 else 0 for i in range(len(df))]
+D15 = [1 if df['X+5-c'][i] >= 0 else 0 for i in range(len(df))]
+D16 = [1 if df['X+6-c'][i] >= 0 else 0 for i in range(len(df))]
+D17 = [1 if df['X+7-c'][i] >= 0 else 0 for i in range(len(df))]
 
 D11 = pd.Series(D11, name = 'D+1')
 D12 = pd.Series(D12, name = 'D+2')
@@ -455,21 +471,21 @@ D17 = pd.Series(D17, name = 'D+7')
 
 df = pd.concat([df, D01, D02, D03, D04, D05, D06, D07, D11, D12, D13, D14, D15, D16, D17], axis = 1)
 
-DXc01 = D01*df['X-1']
-DXc02 = D02*df['X-2']
-DXc03 = D03*df['X-3']
-DXc04 = D04*df['X-4']
-DXc05 = D05*df['X-5']
-DXc06 = D06*df['X-6']
-DXc07 = D07*df['X-7']
+DXc01 = D01*df['X-1-c']
+DXc02 = D02*df['X-2-c']
+DXc03 = D03*df['X-3-c']
+DXc04 = D04*df['X-4-c']
+DXc05 = D05*df['X-5-c']
+DXc06 = D06*df['X-6-c']
+DXc07 = D07*df['X-7-c']
 
-DXc11 = D11*df['X+1']
-DXc12 = D12*df['X+2']
-DXc13 = D13*df['X+3']
-DXc14 = D14*df['X+4']
-DXc15 = D15*df['X+5']
-DXc16 = D16*df['X+6']
-DXc17 = D17*df['X+7']
+DXc11 = D11*df['X+1-c']
+DXc12 = D12*df['X+2-c']
+DXc13 = D13*df['X+3-c']
+DXc14 = D14*df['X+4-c']
+DXc15 = D15*df['X+5-c']
+DXc16 = D16*df['X+6-c']
+DXc17 = D17*df['X+7-c']
 
 DXc01 = pd.Series(DXc01, name = 'D-1(X-c)')
 DXc02 = pd.Series(DXc02, name = 'D-2(X-c)')
@@ -507,6 +523,27 @@ ln_new30 = pd.Series(np.log(df.new30.values), name = 'ln_new30')
 
 df = pd.concat([df, ln_arXiv7, ln_arXiv14, ln_arXiv30, ln_new7, ln_new14, ln_new30], axis = 1)
 
+# Two journals had a bad date resulting in an infeasible value for Stage1 so they are dropped here
+
+df = df[df.Stage1 >= 0].reset_index(drop = True)
+
+# Defining a function for adding a month dummy
+
+def month(m):
+    
+    md = {'01':'JAN', '02':'FEB', '03':'MAR', '04':'APR', '05':'MAY', '06':'JUN', 
+          '07':'JUL', '08':'AUG', '09':'SEP', '10':'OCT', '11':'NOV', '12':'DEC', } # a month dictionary    
+    s = m[5:7] # the month as a number stored as a string
+    mon = md[s]# getting the month from the dictionary
+    
+    return mon
+
+# Add a month dummy using the function
+
+months = [month(m) for m in df.Submitted]
+months = pd.Series(months, name = 'Month')
+df = pd.concat([df, months], axis = 1)
+
 # Prepping the data for the regressions
 
 Stage1 = np.log(df.Stage1.values)
@@ -514,65 +551,205 @@ Stage2 = np.log(df.Stage2.values)
 Stage3 = np.log(df.Stage3.values)
 Total = np.log(df.Total.values)
 Editor = np.log(df.Editor.values)
-Author = np.log(df.Author.values)
 
-XX = stats.add_constant(df[['D', 'X', 'D(X-c)', 'COVID', 'Double_Blind', 'Author_Count', 'ln_arXiv30']])
+XX = stats.add_constant(df[['X-c', '(X-c)^2', '(X-c)^3', 'D', 'D(X-c)', 'D(X-c)^2', 'D(X-c)^3',
+                            'COVID', 'Double_Blind', 'Author_Count', 'ln_arXiv14']])
+
+# Creating the fixed effects
 
 dG = pd.get_dummies(df['Gender'])
 dF = pd.get_dummies(df['Frascati'])
 dQ = pd.get_dummies(df['First_Quartile'])
 dN = pd.get_dummies(df['Nationality'])
 dJ = pd.get_dummies(df['Journal'])
+dM = pd.get_dummies(df['Month'])
 
 XX = XX.join(dG).drop('unknown', axis = 1)
 XX = XX.join(dF).drop(6, axis = 1)
 XX = XX.join(dQ).drop('q4', axis = 1)
 XX = XX.join(dN).drop('USA', axis = 1)
 XX = XX.join(dJ).drop('Animals', axis = 1)
+XX = XX.join(dM).drop('JAN', axis = 1)
 
-# Running the fuzzy regression discontinuity models models
+# Interacting gender and peer review type
 
-res = stats.OLS(Stage1,XX).fit(cov_type = 'HC1')
-print(res.summary())
-#file = open('C:/Users/User/Documents/Data/COVID-19/results_Stage1.txt', 'w')
-#file.write(res.summary().as_text())
-#file.close()
+F1xPR = pd.Series(XX.Double_Blind*XX.female, name = 'female_DB')
+F2xPR = pd.Series(XX.Double_Blind*XX.mostly_female, name = 'mostly_female_DB')
+M1xPR = pd.Series(XX.Double_Blind*XX.male, name = 'male_DB')
+M2xPR = pd.Series(XX.Double_Blind*XX.mostly_male, name = 'mostly_male_DB')
+AxPR = pd.Series(XX.Double_Blind*XX.andy, name = 'andy_DB')
 
+XX = XX.join(F1xPR)
+XX = XX.join(F2xPR)
+XX = XX.join(M1xPR)
+XX = XX.join(M2xPR)
+XX = XX.join(AxPR)
 
+# Running the fuzzy regression discontinuity models
 
+print('Running the main models.......')
 
+res1 = stats.OLS(Stage1,XX).fit(cov_type = 'HC1')
+res2 = stats.OLS(Stage2,XX).fit(cov_type = 'HC1')
+res3 = stats.OLS(Stage3,XX).fit(cov_type = 'HC1')
+resT = stats.OLS(Total,XX).fit(cov_type = 'HC1')
+resE = stats.OLS(Editor,XX).fit(cov_type = 'HC1')
 
+print(res1.summary())
+print(res2.summary())
+print(res3.summary())
+print(resT.summary())
+print(resE.summary())
 
+res_list = [res1, res2, res3, resT, resE]
+names = ['Stage1', 'Stage2', 'Stage3', 'Total', 'Editor']
 
-
-
-
-
-
-
-
-Y = a + bZ + eD + f(X-c) + gD(X-c) + u
-
-Y :: 'Stage1', 'Stage2', 'Stage3', 'Total', 'Editor','Author'
-
-Z2 :: 'Title', 'Abstract', 'Keywords'
-
-Z :: 'Journal', 'Frascati', 'arXiv7', 'arXiv14', 'arXiv30', 'new7', 'new14', 'new30','COVID',
-'Author_Count', 'Gender', 'Nationality', 'First_Quartile', 'Top_Quartile', 'Q1', 'Double_Blind'
-
-X :: 'X', 'X-1', 'X-2', 'X-3', 'X-4', 'X-5', 'X-6', 'X-7', 'X+1', 'X+2',
-'X+3', 'X+4', 'X+5', 'X+6', 'X+7', 
-
-
-
-"""
-INTERACT GENDER VARIABLES WITH PEER REVIEW TYPE VARIABLE!!!!!!!
-"""
-
-
-
+for r in range(len(res_list)):
+    
+    file = open('C:/Users/User/Documents/Data/COVID-19/results_' + names[r] + '.txt', 'w')
+    file.write(res_list[r].summary().as_text())
+    file.close()
 
 
+restab(res_list, 'C:/Users/User/Documents/Data/COVID-19/restab_main.txt')
+
+# Before running any more models, the text mining component needs to be done
+
+# Defining a function for extracting the keywords from the dataframe
+
+def clean_keys(key):
+    
+    key_list = [] # Initialize a list
+    idx = 0
+    
+    # Data preprocessing prior to identifying individual keywords
+    
+    key = key.lower() # convert to lowercase
+    key = key.replace(',', ' ') # replace certain characters with a space
+    key = key.replace('.', ' ') # replace certain characters with a space
+    key = key.replace('&', ' ') # replace certain characters with a space
+    key = key.replace(' and', ' ') # replace certain characters with a space
+    key = key.replace("'", '') # remove apostrophes
+    key = key.replace('<i>', '') # remove italicized
+    key = key.replace('</i>', '') # remove italicized
+    key = key.replace('(m amp;o)', '') # manual cleansing
+    key = key.replace('(d amp;a)', '') # manual cleansing
+    key = key.replace('d amp; p', '') # manual cleansing
+    key = key.replace('m 9191t gt; c', '') # manual cleansing
+    key = key.replace('zeama;pht1;6', '') # manual cleansing
+    key = key.replace(' l ; r', '') # manual cleansing
+    key = key.replace('g 7254t gt;c', '') # manual cleansing
+    key = key.replace('m 3243a gt;g', '') # manual cleansing
+    key = key.replace('t(6;9)', '') # manual cleansing
+    key = key.replace('sh amp; e', '') # manual cleansing
+    key = key.replace('q amp; a', '') # manual cleansing
+    key = key.replace('−2459g  gt; a', '') # manual cleansing
+    key = key.replace('r amp;d', 'rd') # manual cleansing
+    key = key.replace('r d', 'rd') # manual cleansing
+    key = key.replace('(rd amp;d)', '') # manual cleaning
+    key = key.replace('c -32-13t amp;gt; g', '') # manual cleansing
+    key = key.replace('rs4253778 g  gt; c; rs4253776 a  gt; g', '') # manual cleansing
+    key = key.replace('π', '') # manual cleansing
+    key = ' '.join(key.split()) # remove duplicate spaces and begining/end spaces
+    
+    if key[-2:] == ' r': # manual cleansing
+        
+        key = key[:-2]
+        
+    if key[-1] == ';': # remove end ; from certain manual cleansing
+        
+        key = key[:-1]
+        
+    while idx != -1:
+        
+        idx = key.find(';') # isolate keyword
+        
+        if key[idx-1] == 's': # depluralize
+            
+            word = key[0:idx-1] # depluralize
+            #word = ' '.join(w for w in word if w.isalnum()) # remove special characters
+            key_list.append(word) # append keyword to list of keywords
+            
+        else:
+            
+            word = key[0:idx] # depluralize
+            #word = ' '.join(w for w in word if w.isalnum()) # remove special characters
+            key_list.append(word) # append keyword to list of keywords
+            
+        if key[idx+1] == ' ':
+            
+            key = key[idx+2:] # remove remainder of key
+            
+        else:
+            
+            key = key[idx+1:] # remove remainder of key
+        
+    if key[-1] == 's':
+        
+        word = key[:-1] # depluralize
+        #word = ' '.join(w for w in word if w.isalnum()) # remove special characters
+        key_list.append(word) # last keyword
+        
+    else:
+        
+        word = key
+        #word = ' '.join(w for w in word if w.isalnum()) # remove special characters
+        key_list.append(word) # last keyword
+            
+    return key_list
+
+# Applying the function
+
+print('Extracting and cleaning the keywords.......')
+
+# Generating raw lists of keywords for each paper
+
+keywords = [clean_keys(k) for k in df.Keywords]
+
+# Creating a main list of keywords
+
+all_keys = [k for keyword in keywords for k in keyword]
+key_list = list(sorted(set(all_keys)))
+counts = [all_keys.count(k) for k in key_list]
+
+# Generating reference indices for keywords appearing in >= n papers
+
+k2 = [i for i in range(len(counts)) if counts[i] >= 2]
+k3 = [i for i in range(len(counts)) if counts[i] >= 3]
+k5 = [i for i in range(len(counts)) if counts[i] >= 5]
+k10 = [i for i in range(len(counts)) if counts[i] >= 10]
+k20 = [i for i in range(len(counts)) if counts[i] >= 20]
+k50 = [i for i in range(len(counts)) if counts[i] >= 50]
+k100  = [i for i in range(len(counts)) if counts[i] >= 100]
+
+# Generating the lists of keywords that appear in >= n papers
+
+keys2 = [all_keys[i] for i in k2]
+keys3 = [all_keys[i] for i in k3]
+keys5 = [all_keys[i] for i in k5]
+keys10 = [all_keys[i] for i in k10]
+keys20 = [all_keys[i] for i in k20]
+keys50 = [all_keys[i] for i in k50]
+keys100 = [all_keys[i] for i in k100]
+
+
+
+
+
+
+#####   CHECK ABOVE TO SEE IF THERE ARE DUPLICATE KEYWORDS....
+
+
+
+# Creating dichotomous variables from the keywords
+
+keydf = pd.DataFrame()
+
+for k in keys10:
+    
+    col = [1 if k in keywords[i] else 0 for i in range(len(df))]
+    col = pd.Series(col, name = k)
+    keydf = pd.concat([keydf, col], axis = 1)
 
 
 
@@ -585,11 +762,11 @@ INTERACT GENDER VARIABLES WITH PEER REVIEW TYPE VARIABLE!!!!!!!
 
 
 
-# cutoffs could include distance from march, distance from march 16 (mid march), ...
 
-# how much time around cutoff and should it be symmetric in time?
-# need to remove papers from journals that did not have publications prior to COVID
-# this could be done by only considering journals that published papers in 2019
+
+
+
+
 
 
 # Data visualization
@@ -599,9 +776,8 @@ viz = pd.Series(viz, name = 'viz')
 df2 = pd.concat([df, viz], axis = 1)
 df3 = df2[df2.COVID == 0]
 
-
-d0 = datetime.datetime.strptime('2018-12-31', '%Y-%m-%d')
-days = [d0 + datetime.timedelta(days = d) for d in range(548)]
+d0 = datetime.datetime.strptime('2019-11-30', '%Y-%m-%d') # d0 = datetime.datetime.strptime('2018-12-31', '%Y-%m-%d')
+days = [d0 + datetime.timedelta(days = d) for d in range(214)] # days = [d0 + datetime.timedelta(days = d) for d in range(548)]
 plotdata = []
 plotdata2 = []
 
@@ -612,18 +788,21 @@ for day in days:
     plotdata.append(np.mean(temp.Total))
     plotdata2.append(np.mean(temp2.Total))
 
-plt.figure(figsize = (8,5))
-plt.plot(plotdata, color = 'black')
-plt.plot(plotdata2, color = 'red')
-"""
-ADD VERTICAL LINES FOR MARCH 1 AND MARCH 31 AND MAYBE THE IDES OF MARCH?
-"""
-"""
-ALSO, FORMAT X LABELS AS DATES
-"""
-"""
-ALSO, DE-TREND THIS DATA OR NO?!?!? -- JUST FOR THE SAKE OF THE PLOT.... DO BOTH!!!!
-"""
+days = pd.Series(days, name = 'Date')
+plotdata = pd.Series(plotdata, name = 'Days')
+plotdata2 = pd.Series(plotdata2, name = 'Days')
+plotdf = pd.concat([days, plotdata], axis = 1)
+plot2df = pd.concat([days, plotdata2], axis = 1)
+plotdf.set_index('Date', inplace = True, drop = True)
+plot2df.set_index('Date', inplace = True, drop = True)
+
+ax = plotdf.plot(color  = 'black', legend = False)
+plot2df.plot(ax = ax, color  = 'red', legend = False)
+plt.title('Mean Days from Submission to Publication\nfor Accepted Papers by Submission Date')
+plt.xlabel('Date')
+plt.ylabel('Days')
+plt.axvline(x = days[107])
+plt.savefig('C:/Users/User/Documents/Data/COVID-19/Figure_1.eps')
 
 
 
@@ -631,14 +810,14 @@ ALSO, DE-TREND THIS DATA OR NO?!?!? -- JUST FOR THE SAKE OF THE PLOT.... DO BOTH
 
 
 
-
-# find visual evidence justifying FRDD
-# create plots to include in the paper - mean(papers.Total) conditional on papers.Submitted == day
-# subset data by journals
-# subset data by dates (around the cut-off)
-# subset data for each set of models (Xs, Ys)
-# run models
-# create output tex tables
+#### TO DO ####
+# extract data from titles
+# extract data from abstracts
+# create dummies with data extracted from keywords, titles, and abstracts
+# run full regressions --- only use keywords maybe???
+# finish prep for robustness checks including distance from march with all of march == 0
+# run robustness checks
+# write the paper
 
 
 
