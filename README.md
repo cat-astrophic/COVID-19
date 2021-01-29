@@ -10,4 +10,4 @@ This repo contains code to determine if there has been an impact on the academic
 * **mdpi_data_cleaner** cleans raw metadata from mdpi papers + datetime calculations
 * **mdpi_add_FM** adds Frascati Manual category for each journal to the dataframe
 * **mdpi_add_arxiv** creates arXiv count data and adds it to the main dataframe
-* **mdpi_frdd** runs main models, etc.
+* **mdpi_frdd** performs text mining, creates data viz, runs main models, etc.
