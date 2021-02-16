@@ -610,7 +610,6 @@ for r in range(len(res_list)):
     file.write(res_list[r].summary().as_text())
     file.close()
 
-
 restab(res_list, 'C:/Users/User/Documents/Data/COVID-19/restab_main.txt')
 
 # Before running any more models, the text mining component needs to be done
@@ -724,50 +723,64 @@ k100  = [i for i in range(len(counts)) if counts[i] >= 100]
 
 # Generating the lists of keywords that appear in >= n papers
 
-keys2 = [all_keys[i] for i in k2]
-keys3 = [all_keys[i] for i in k3]
-keys5 = [all_keys[i] for i in k5]
-keys10 = [all_keys[i] for i in k10]
-keys20 = [all_keys[i] for i in k20]
-keys50 = [all_keys[i] for i in k50]
-keys100 = [all_keys[i] for i in k100]
-
-
-
-
-
-
-#####   CHECK ABOVE TO SEE IF THERE ARE DUPLICATE KEYWORDS....
-
-
-
-# Creating dichotomous variables from the keywords
+keys2 = [key_list[i] for i in k2]
+keys3 = [key_list[i] for i in k3]
+keys5 = [key_list[i] for i in k5]
+keys10 = [key_list[i] for i in k10]
+keys20 = [key_list[i] for i in k20]
+keys50 = [key_list[i] for i in k50]
+keys100 = [key_list[i] for i in k100]
 
 keydf = pd.DataFrame()
 
-for k in keys10:
+for k in keys100:
     
+    print('Creating fixed effect for keyword ' + str(keys100.index(k)+1) + ' of 743.......')
     col = [1 if k in keywords[i] else 0 for i in range(len(df))]
     col = pd.Series(col, name = k)
     keydf = pd.concat([keydf, col], axis = 1)
+    
+# Removing two meaningless keywords ('[' and '[]')
 
+keykeepers = [k for k in list(keydf.columns) if list(keydf.columns).index(k) not in [2,3]]
+keydf = keydf[keykeepers]
 
+# Appending keydf to df
 
+df = pd.concat([df, keydf], axis = 1)
 
+# Running regressions with comntrols for common keywords
 
+# Prepping the data for the regressions
 
+XX = XX.join(keydf)
 
+# Running the fuzzy regression discontinuity models
 
+print('Running the main models.......')
 
+res1b = stats.OLS(Stage1,XX).fit(cov_type = 'HC1')
+res2b = stats.OLS(Stage2,XX).fit(cov_type = 'HC1')
+res3b = stats.OLS(Stage3,XX).fit(cov_type = 'HC1')
+resTb = stats.OLS(Total,XX).fit(cov_type = 'HC1')
+resEb = stats.OLS(Editor,XX).fit(cov_type = 'HC1')
 
+print(res1b.summary())
+print(res2b.summary())
+print(res3b.summary())
+print(resTb.summary())
+print(resEb.summary())
 
+res_listb = [res1b, res2b, res3b, resTb, resEb]
+names = ['Stage1', 'Stage2', 'Stage3', 'Total', 'Editor']
 
+for r in range(len(res_listb)):
+    
+    file = open('C:/Users/User/Documents/Data/COVID-19/results_with_keywords' + names[r] + '.txt', 'w')
+    file.write(res_listb[r].summary().as_text())
+    file.close()
 
-
-
-
-
-
+restab(res_list, 'C:/Users/User/Documents/Data/COVID-19/restab_with_keywords.txt')
 
 # Data visualization
 
@@ -776,10 +789,15 @@ viz = pd.Series(viz, name = 'viz')
 df2 = pd.concat([df, viz], axis = 1)
 df3 = df2[df2.COVID == 0]
 
-d0 = datetime.datetime.strptime('2019-11-30', '%Y-%m-%d') # d0 = datetime.datetime.strptime('2018-12-31', '%Y-%m-%d')
-days = [d0 + datetime.timedelta(days = d) for d in range(214)] # days = [d0 + datetime.timedelta(days = d) for d in range(548)]
+d0 = datetime.datetime.strptime('2019-12-01', '%Y-%m-%d')
+d20 = datetime.datetime.strptime('2019-01-01', '%Y-%m-%d')
+days = [d0 + datetime.timedelta(days = d) for d in range(213)]
+days2 = [d20 + datetime.timedelta(days = d) for d in range(547)]
+
 plotdata = []
 plotdata2 = []
+plot2data = []
+plot2data2 = []
 
 for day in days:
     
@@ -788,13 +806,27 @@ for day in days:
     plotdata.append(np.mean(temp.Total))
     plotdata2.append(np.mean(temp2.Total))
 
+for day in days2:
+    
+    temp = df2[df2.viz == day]
+    temp2 = df3[df3.viz == day]
+    plot2data.append(np.mean(temp.Total))
+    plot2data2.append(np.mean(temp2.Total))
+    
 days = pd.Series(days, name = 'Date')
+days2 = pd.Series(days2, name = 'Date')
 plotdata = pd.Series(plotdata, name = 'Days')
+plot2data = pd.Series(plot2data, name = 'Days')
 plotdata2 = pd.Series(plotdata2, name = 'Days')
+plot2data2 = pd.Series(plot2data2, name = 'Days')
 plotdf = pd.concat([days, plotdata], axis = 1)
 plot2df = pd.concat([days, plotdata2], axis = 1)
+plotdf2 = pd.concat([days2, plot2data], axis = 1)
+plot2df2 = pd.concat([days2, plot2data2], axis = 1)
 plotdf.set_index('Date', inplace = True, drop = True)
 plot2df.set_index('Date', inplace = True, drop = True)
+plotdf2.set_index('Date', inplace = True, drop = True)
+plot2df2.set_index('Date', inplace = True, drop = True)
 
 ax = plotdf.plot(color  = 'black', legend = False)
 plot2df.plot(ax = ax, color  = 'red', legend = False)
@@ -804,7 +836,167 @@ plt.ylabel('Days')
 plt.axvline(x = days[107])
 plt.savefig('C:/Users/User/Documents/Data/COVID-19/Figure_1.eps')
 
+ax = plotdf.plot(color  = 'black', legend = False)
+plot2df2.plot(ax = ax, color  = 'red', legend = False)
+plt.title('Mean Days from Submission to Publication\nfor Accepted Papers by Submission Date')
+plt.xlabel('Date')
+plt.ylabel('Days')
+plt.axvline(x = days2[440])
+plt.savefig('C:/Users/User/Documents/Data/COVID-19/Figure_2.eps')
 
+# Calculating and plotting COVID effects over time from initial regressions
+
+time = [i for i in range(1,107)] # From March 17 through June 30
+effects1 = [res1.params['D'] + t*res1.params['D(X-c)'] + t*t*res1.params['D(X-c)^2'] + t*t*t*res1.params['D(X-c)^3'] for t in time]
+stderrs1 = [res1.bse['D'] + res1.bse['D(X-c)'] + res1.bse['D(X-c)^2'] + res1.bse['D(X-c)^3'] for t in time]
+effects2 = [res2.params['D'] + t*res2.params['D(X-c)'] + t*t*res2.params['D(X-c)^2'] + t*t*t*res2.params['D(X-c)^3'] for t in time]
+stderrs2 = [res2.bse['D'] + res2.bse['D(X-c)'] + res2.bse['D(X-c)^2'] + res2.bse['D(X-c)^3'] for t in time]
+effects3 = [res3.params['D'] + t*res3.params['D(X-c)'] + t*t*res3.params['D(X-c)^2'] + t*t*t*res3.params['D(X-c)^3'] for t in time]
+stderrs3 = [res3.bse['D'] + res3.bse['D(X-c)'] + res3.bse['D(X-c)^2'] + res3.bse['D(X-c)^3'] for t in time]
+effectsT = [resT.params['D'] + t*resT.params['D(X-c)'] + t*t*resT.params['D(X-c)^2'] + t*t*t*resT.params['D(X-c)^3'] for t in time]
+stderrsT = [resT.bse['D'] + resT.bse['D(X-c)'] + resT.bse['D(X-c)^2'] + resT.bse['D(X-c)^3'] for t in time]
+effectsE = [resE.params['D'] + t*resE.params['D(X-c)'] + t*t*resE.params['D(X-c)^2'] + t*t*t*resE.params['D(X-c)^3'] for t in time]
+stderrsE = [resE.bse['D'] + resE.bse['D(X-c)'] + resE.bse['D(X-c)^2'] + resE.bse['D(X-c)^3'] for t in time]
+
+eplot1df = 100*pd.Series(effects1, name = 'Stage 1')
+eplot2df = 100*pd.Series(effects2, name = 'Stage 2')
+eplot3df = 100*pd.Series(effects3, name = 'Stage 3')
+eplotTdf = 100*pd.Series(effectsT, name = 'Total')
+eplotEdf = 100*pd.Series(effectsE, name = 'Editorial')
+
+splot1df = 100*pd.Series([effects1[i] + 1.96*stderrs1[i] for i in range(len(effects1))], name = 'SE')
+splot2df = 100*pd.Series([effects2[i] + 1.96*stderrs2[i] for i in range(len(effects2))], name = 'SE')
+splot3df = 100*pd.Series([effects3[i] + 1.96*stderrs3[i] for i in range(len(effects3))], name = 'SE')
+splotTdf = 100*pd.Series([effectsT[i] + 1.96*stderrsT[i] for i in range(len(effectsT))], name = 'SE')
+splotEdf = 100*pd.Series([effectsE[i] + 1.96*stderrsE[i] for i in range(len(effectsE))], name = 'SE')
+
+splot1dfm = 100*pd.Series([effects1[i] - 1.96*stderrs1[i] for i in range(len(effects1))], name = 'SE')
+splot2dfm = 100*pd.Series([effects2[i] - 1.96*stderrs2[i] for i in range(len(effects2))], name = 'SE')
+splot3dfm = 100*pd.Series([effects3[i] - 1.96*stderrs3[i] for i in range(len(effects3))], name = 'SE')
+splotTdfm = 100*pd.Series([effectsT[i] - 1.96*stderrsT[i] for i in range(len(effectsT))], name = 'SE')
+splotEdfm = 100*pd.Series([effectsE[i] - 1.96*stderrsE[i] for i in range(len(effectsE))], name = 'SE')
+
+ax = eplot1df.plot(color  = 'black', legend = False)
+splot1df.plot(ax = ax, color  = 'red', legend = False)
+splot1dfm.plot(ax = ax, color  = 'red', legend = False)
+plt.title('Effect on Publication Times due to COVID-19')
+plt.xlabel('Days Post Treatment (March 16)')
+plt.ylabel('Effect (% Change in Time)')
+plt.axhline(0)
+plt.savefig('C:/Users/User/Documents/Data/COVID-19/Effects_Figure_1.eps')
+
+ax = eplot2df.plot(color  = 'black', legend = False)
+splot2df.plot(ax = ax, color  = 'red', legend = False)
+splot2dfm.plot(ax = ax, color  = 'red', legend = False)
+plt.title('Effect on Publication Times due to COVID-19')
+plt.xlabel('Days Post Treatment (March 16)')
+plt.ylabel('Effect (% Change in Time)')
+plt.axhline(0)
+plt.savefig('C:/Users/User/Documents/Data/COVID-19/Effects_Figure_2.eps')
+
+ax = eplot3df.plot(color  = 'black', legend = False)
+splot3df.plot(ax = ax, color  = 'red', legend = False)
+splot3dfm.plot(ax = ax, color  = 'red', legend = False)
+plt.title('Effect on Publication Times due to COVID-19')
+plt.xlabel('Days Post Treatment (March 16)')
+plt.ylabel('Effect (% Change in Time)')
+plt.axhline(0)
+plt.savefig('C:/Users/User/Documents/Data/COVID-19/Effects_Figure_3.eps')
+
+ax = eplotTdf.plot(color  = 'black', legend = False)
+splotTdf.plot(ax = ax, color  = 'red', legend = False)
+splotTdfm.plot(ax = ax, color  = 'red', legend = False)
+plt.title('Effect on Publication Times due to COVID-19')
+plt.xlabel('Days Post Treatment (March 16)')
+plt.ylabel('Effect (% Change in Time)')
+plt.axhline(0)
+plt.savefig('C:/Users/User/Documents/Data/COVID-19/Effects_Figure_T.eps')
+
+ax = eplotEdf.plot(color  = 'black', legend = False)
+splotEdf.plot(ax = ax, color  = 'red', legend = False)
+splotEdfm.plot(ax = ax, color  = 'red', legend = False)
+plt.title('Effect on Publication Times due to COVID-19')
+plt.xlabel('Days Post Treatment (March 16)')
+plt.ylabel('Effect (% Change in Time)')
+plt.axhline(0)
+plt.savefig('C:/Users/User/Documents/Data/COVID-19/Effects_Figure_E.eps')
+
+# Calculating and plotting COVID effects over time from regressions with keywords
+
+time = [i for i in range(1,107)] # From March 17 through June 30
+effects1b = [res1b.params['D'] + t*res1b.params['D(X-c)'] + t*t*res1b.params['D(X-c)^2'] + t*t*t*res1b.params['D(X-c)^3'] for t in time]
+stderrs1b = [res1b.bse['D'] + res1b.bse['D(X-c)'] + res1b.bse['D(X-c)^2'] + res1b.bse['D(X-c)^3'] for t in time]
+effects2b = [res2b.params['D'] + t*res2b.params['D(X-c)'] + t*t*res2b.params['D(X-c)^2'] + t*t*t*res2b.params['D(X-c)^3'] for t in time]
+stderrs2b = [res2b.bse['D'] + res2b.bse['D(X-c)'] + res2b.bse['D(X-c)^2'] + res2b.bse['D(X-c)^3'] for t in time]
+effects3b = [res3b.params['D'] + t*res3b.params['D(X-c)'] + t*t*res3b.params['D(X-c)^2'] + t*t*t*res3b.params['D(X-c)^3'] for t in time]
+stderrs3b = [res3b.bse['D'] + res3b.bse['D(X-c)'] + res3b.bse['D(X-c)^2'] + res3b.bse['D(X-c)^3'] for t in time]
+effectsTb = [resTb.params['D'] + t*resTb.params['D(X-c)'] + t*t*resTb.params['D(X-c)^2'] + t*t*t*resTb.params['D(X-c)^3'] for t in time]
+stderrsTb = [resTb.bse['D'] + resTb.bse['D(X-c)'] + resTb.bse['D(X-c)^2'] + resTb.bse['D(X-c)^3'] for t in time]
+effectsEb = [resEb.params['D'] + t*resEb.params['D(X-c)'] + t*t*resEb.params['D(X-c)^2'] + t*t*t*resEb.params['D(X-c)^3'] for t in time]
+stderrsEb = [resEb.bse['D'] + resEb.bse['D(X-c)'] + resEb.bse['D(X-c)^2'] + resEb.bse['D(X-c)^3'] for t in time]
+
+eplot1dfb = 100*pd.Series(effects1b, name = 'Stage 1')
+eplot2dfb = 100*pd.Series(effects2b, name = 'Stage 2')
+eplot3dfb = 100*pd.Series(effects3b, name = 'Stage 3')
+eplotTdfb = 100*pd.Series(effectsTb, name = 'Total')
+eplotEdfb = 100*pd.Series(effectsEb, name = 'Editorial')
+
+splot1dfb = 100*pd.Series([effects1b[i] + 1.96*stderrs1b[i] for i in range(len(effects1b))], name = 'SE')
+splot2dfb = 100*pd.Series([effects2b[i] + 1.96*stderrs2b[i] for i in range(len(effects2b))], name = 'SE')
+splot3dfb = 100*pd.Series([effects3b[i] + 1.96*stderrs3b[i] for i in range(len(effects3b))], name = 'SE')
+splotTdfb = 100*pd.Series([effectsTb[i] + 1.96*stderrsTb[i] for i in range(len(effectsTb))], name = 'SE')
+splotEdfb = 100*pd.Series([effectsEb[i] + 1.96*stderrsEb[i] for i in range(len(effectsEb))], name = 'SE')
+
+splot1dfmb = 100*pd.Series([effects1b[i] - 1.96*stderrs1b[i] for i in range(len(effects1b))], name = 'SE')
+splot2dfmb = 100*pd.Series([effects2b[i] - 1.96*stderrs2b[i] for i in range(len(effects2b))], name = 'SE')
+splot3dfmb = 100*pd.Series([effects3b[i] - 1.96*stderrs3b[i] for i in range(len(effects3b))], name = 'SE')
+splotTdfmb = 100*pd.Series([effectsTb[i] - 1.96*stderrsTb[i] for i in range(len(effectsTb))], name = 'SE')
+splotEdfmb = 100*pd.Series([effectsEb[i] - 1.96*stderrsEb[i] for i in range(len(effectsEb))], name = 'SE')
+
+ax = eplot1dfb.plot(color  = 'black', legend = False)
+splot1dfb.plot(ax = ax, color  = 'red', legend = False)
+splot1dfmb.plot(ax = ax, color  = 'red', legend = False)
+plt.title('Effect on Publication Times due to COVID-19')
+plt.xlabel('Days Post Treatment (March 16)')
+plt.ylabel('Effect (% Change in Time)')
+plt.axhline(0)
+plt.savefig('C:/Users/User/Documents/Data/COVID-19/Keyword_Effects_Figure_1.eps')
+
+ax = eplot2dfb.plot(color  = 'black', legend = False)
+splot2dfb.plot(ax = ax, color  = 'red', legend = False)
+splot2dfmb.plot(ax = ax, color  = 'red', legend = False)
+plt.title('Effect on Publication Times due to COVID-19')
+plt.xlabel('Days Post Treatment (March 16)')
+plt.ylabel('Effect (% Change in Time)')
+plt.axhline(0)
+plt.savefig('C:/Users/User/Documents/Data/COVID-19/Keyword_Effects_Figure_2.eps')
+
+ax = eplot3dfb.plot(color  = 'black', legend = False)
+splot3dfb.plot(ax = ax, color  = 'red', legend = False)
+splot3dfmb.plot(ax = ax, color  = 'red', legend = False)
+plt.title('Effect on Publication Times due to COVID-19')
+plt.xlabel('Days Post Treatment (March 16)')
+plt.ylabel('Effect (% Change in Time)')
+plt.axhline(0)
+plt.savefig('C:/Users/User/Documents/Data/COVID-19/Keyword_Effects_Figure_3.eps')
+
+ax = eplotTdfb.plot(color  = 'black', legend = False)
+splotTdfb.plot(ax = ax, color  = 'red', legend = False)
+splotTdfmb.plot(ax = ax, color  = 'red', legend = False)
+plt.title('Effect on Publication Times due to COVID-19')
+plt.xlabel('Days Post Treatment (March 16)')
+plt.ylabel('Effect (% Change in Time)')
+plt.axhline(0)
+plt.savefig('C:/Users/User/Documents/Data/COVID-19/Keyword_Effects_Figure_T.eps')
+
+ax = eplotEdfb.plot(color  = 'black', legend = False)
+splotEdfb.plot(ax = ax, color  = 'red', legend = False)
+splotEdfmb.plot(ax = ax, color  = 'red', legend = False)
+plt.title('Effect on Publication Times due to COVID-19')
+plt.xlabel('Days Post Treatment (March 16)')
+plt.ylabel('Effect (% Change in Time)')
+plt.axhline(0)
+plt.savefig('C:/Users/User/Documents/Data/COVID-19/Keyword_Effects_Figure_E.eps')
 
 
 
