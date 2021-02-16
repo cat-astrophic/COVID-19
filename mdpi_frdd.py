@@ -998,20 +998,3 @@ plt.ylabel('Effect (% Change in Time)')
 plt.axhline(0)
 plt.savefig('C:/Users/User/Documents/Data/COVID-19/Keyword_Effects_Figure_E.eps')
 
-
-
-
-
-#### TO DO ####
-# extract data from titles
-# extract data from abstracts
-# create dummies with data extracted from keywords, titles, and abstracts
-# run full regressions --- only use keywords maybe???
-# finish prep for robustness checks including distance from march with all of march == 0
-# run robustness checks
-# write the paper
-
-
-
-
-
